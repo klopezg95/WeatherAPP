@@ -1,0 +1,86 @@
+.huge {
+    position: relative;
+    z-index: 1;
+
+}
+
+.huge::before {
+    content: "";
+    background-image: url('https://images.hdqwalls.com/wallpapers/sky-clouds-4k-ja.jpg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: cover;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
+
+.big-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    // background-color: rgb(31, 28, 28);
+    color: $white;
+
+    h1{
+        font-size: 3rem;
+    }
+
+    .container1 {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+
+
+
+        input {
+            padding: 10px;
+            color: $white;
+            background-color: $dark;
+            border-radius: 5%;
+            height: 3vh;
+            font-size: 1.5rem
+        }
+
+
+        button {
+            border: 0;
+            border-radius: 5%;
+            width: 60%;
+            height: 70px;
+            font-size: 1.5rem;
+            background-color: $purple;
+            color: $white;
+            padding: 10px;
+            margin-top: 4vh;
+            transition: all 0.5s ease-in-out
+        }
+
+        button:hover {
+            background-color: $grenn;
+            transition: all 0.5s ease-in-out
+
+        }
+    }
+
+    .container2 {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 2rem;
+
+
+    }
+
+
+}
