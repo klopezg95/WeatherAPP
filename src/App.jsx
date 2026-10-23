@@ -1,86 +1,93 @@
-import React, { useEffect, useState } from 'react'
-import './styles/styles.scss';
+import React, { useState } from "react";
+import "./styles/styles.scss";
 
-//: 68a6ed7432bd43bb80e205841230205
-//: TEST -----> http://api.weatherapi.com/v1/current.json?key=68a6ed7432bd43bb80e205841230205&q=miami
-// : http://api.weatherapi.com/v1/current.json?key=<YOUR_API_KEY>&q=London
+const API_KEY = import.meta.env.VITE_WEATHER_KEY;
+console.log("KEY cargada:", API_KEY ? "sí, largo " + API_KEY.length : "NO (undefined)");
+const BASE_URL = "https://api.weatherapi.com/v1/current.json";
+
 function App() {
+  const [weather, setWeather] = useState(null);
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  const searchPressed = async () => {
+    const city = search.trim();
+    if (!city) return;
 
-  const [weather, setWeather] = useState({})
-  const [search, setSearch] = useState('');
-  const [icon, setIcon] = useState("");
+    setLoading(true);
+    setError("");
 
-  const searchPressed = () => {
+    try {
+      const response = await fetch(`${BASE_URL}?key=${API_KEY}&q=${encodeURIComponent(city)}`);
+      const result = await response.json();
 
-    if (search) {
+      // WeatherAPI responds with an "error" object when the city is not found
+      if (!response.ok || result.error) {
+        setWeather(null);
+        setError("City not found. Check the spelling and try again.");
+        return;
+      }
 
-      fetch(`http://api.weatherapi.com/v1/current.json?key=68a6ed7432bd43bb80e205841230205&q=${search}`)
-        .then(response => response.json())
-        .then(result => {
-          setWeather(result)
-          setIcon(result.current.condition.text)
-        })
-        .catch(error => console.error(error));
-
+      setWeather(result);
+    } catch {
+      setWeather(null);
+      setError("Could not reach the weather service. Try again in a moment.");
+    } finally {
+      setLoading(false);
     }
-
-  }
-
-  useEffect(() => {
-
-    fetch(`https://www.weatherapi.com/docs/weather_conditions.json`)
-      .then(res => res.json())
-      .then(resultado => setIcon(resultado))
-
-    console.log("cambio de ciudad")
-
-  }, [weather])
-
+  };
 
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-        searchPressed();
+    if (event.key === "Enter") {
+      searchPressed();
     }
-}
+  };
 
-  return (<div className='huge'>
-    <div className='big-container'>
-      {/* HEADER */}
-      <h1>Weather App</h1>
+  return (
+    <div className="huge">
+      <div className="big-container">
+        {/* HEADER */}
+        <h1>Weather App</h1>
 
-      {/* search box */}
-      <div className='container1'>
-        <input type='text' placeholder='Enter city/town...' onKeyDown={handleKeyPress} onChange={(e) => setSearch(e.target.value)} />
-        <button onClick={searchPressed}>Search</button>
+        {/* search box */}
+        <div className="container1">
+          <input
+            type="text"
+            placeholder="Enter city/town..."
+            value={search}
+            onKeyDown={handleKeyPress}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button onClick={searchPressed} disabled={loading}>
+            {loading ? "Searching..." : "Search"}
+          </button>
+        </div>
 
-      </div>
-      <div className='container2'>
-        {/* Location */}
-        {weather.location && weather.location.name && weather.location.region && (
-          <p>
-            {weather.location.name}, {weather.location.region}
-          </p>
-        )}
+        <div className="container2">
+          {error && <p className="error">{error}</p>}
 
-        {/* Temperature */}
-        {weather.current && weather.current.temp_c && <p>{weather.current.temp_c}°C</p>}
+          {weather && (
+            <>
+              {/* Location */}
+              <p>
+                {weather.location.name}, {weather.location.region}
+              </p>
 
-        {/* Condition (sunny) */}
-        {weather.current && weather.current.condition && weather.current.condition.text && (
-          <p>{weather.current.condition.text}</p>
+              {/* Temperature (!== undefined so 0 °C still shows) */}
+              {weather.current.temp_c !== undefined && <p>{weather.current.temp_c}°C</p>}
 
+              {/* Condition (sunny, cloudy...) */}
+              <p>{weather.current.condition.text}</p>
 
-
-        )}
-        {/** Time */}
-        {weather.location && weather.location.localtime && (
-          <p>{weather.location.localtime.slice(-5)}</p>
-        )}
+              {/* Local time */}
+              <p>{weather.location.localtime.slice(-5)}</p>
+            </>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-  )
+  );
 }
 
-export default App
+export default App;
